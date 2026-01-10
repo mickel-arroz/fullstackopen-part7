@@ -7,7 +7,7 @@ const config = () => {
     entry: './src/index.js',
     output: {
       path: path.resolve(__dirname, 'build'),
-      filename: 'main.js',
+      filename: '[name].[contenthash].js',
     },
     devServer: {
       static: {
@@ -16,13 +16,15 @@ const config = () => {
       compress: true,
       port: 3000,
     },
-    devtool: 'source-map',
-
+    optimization: {
+      splitChunks: {
+        chunks: 'all',
+      },
+    },
+    devtool: process.env.NODE_ENV === 'production' ? false : 'source-map',
     plugins: [
-      new HtmlWebpackPlugin({
-        template: './src/index.html',
-      }),
-      new MiniCssExtractPlugin(),
+      new HtmlWebpackPlugin({ template: './src/index.html' }),
+      new MiniCssExtractPlugin({ filename: '[name].[contenthash].css' }),
     ],
 
     module: {

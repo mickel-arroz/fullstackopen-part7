@@ -1,0 +1,1 @@
+{"version":3,"file":"main.b8b43f0c4e57e542da81.css","mappings":"AAAA;EACE,UAAU;EACV,yBAAyB;AAC3B","sources":["webpack://webpack-part7/./src/index.css"],"sourcesContent":[".container {\n  margin: 10;\n  background-color: #dee8e4;\n}\n"],"names":[],"ignoreList":[],"sourceRoot":""}
