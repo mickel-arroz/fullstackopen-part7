@@ -16,6 +16,8 @@ const config = () => {
       compress: true,
       port: 3000,
     },
+    devtool: 'source-map',
+
     plugins: [
       new HtmlWebpackPlugin({
         template: './src/index.html',
