@@ -1,8 +1,16 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const webpack = require('webpack');
 
-const config = () => {
+const config = (env, argv) => {
+  console.log('argv', argv.mode);
+
+  const backend_url =
+    argv.mode === 'production'
+      ? 'https://notes2023.fly.dev/api/notes'
+      : 'http://localhost:3001/notes';
+
   return {
     entry: './src/index.js',
     output: {
@@ -25,6 +33,9 @@ const config = () => {
     plugins: [
       new HtmlWebpackPlugin({ template: './src/index.html' }),
       new MiniCssExtractPlugin({ filename: '[name].[contenthash].css' }),
+      new webpack.DefinePlugin({
+        BACKEND_URL: JSON.stringify(backend_url),
+      }),
     ],
 
     module: {
