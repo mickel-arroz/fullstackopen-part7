@@ -1,9 +1,11 @@
-// Generic notification component. Accepts message and type.
+// Generic notification component. Uses Notification Context to read message and type.
 // type can be: 'error' | 'success' | 'info'
 
-import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
-const Notification = ({ message, type }) => {
+const Notification = () => {
+  const { message, type } = useSelector((state) => state.notification || {});
+
   if (!message) return null;
 
   return (
@@ -11,11 +13,6 @@ const Notification = ({ message, type }) => {
       {message}
     </div>
   );
-};
-
-Notification.propTypes = {
-  message: PropTypes.string,
-  type: PropTypes.string,
 };
 
 export default Notification;
