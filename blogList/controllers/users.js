@@ -12,6 +12,22 @@ usersRouter.get('/', async (request, response) => {
   response.json(users);
 });
 
+// GET single user by id: return name and an array of blog titles
+usersRouter.get('/:id', async (request, response) => {
+  const user = await User.findById(request.params.id).populate('blogs', {
+    title: 1,
+  });
+
+  if (user) {
+    response.json({
+      name: user.name,
+      blogs: user.blogs.map((b) => ({ id: b._id.toString(), title: b.title })),
+    });
+  } else {
+    response.status(404).end();
+  }
+});
+
 usersRouter.post('/', async (request, response, next) => {
   try {
     const { username, name, password } = request.body;

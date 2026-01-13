@@ -1,12 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Blog from './components/Blog';
+import Users from './components/Users';
+import UserDetail from './components/UserDetail';
+import BlogDetail from './components/BlogDetail';
+import Header from './components/Header';
 import Notification from './components/Notification';
 import Togglable from './components/Togglable';
 import BlogForm from './components/BlogForm';
 import LoginForm from './components/LoginForm';
 import { showNotification } from './store/notificationSlice';
-import { logout, login, initializeUser } from './store/authSlice';
+import { login, initializeUser } from './store/authSlice';
 import {
   fetchBlogs,
   createBlog as createBlogThunk,
@@ -45,11 +50,6 @@ const App = () => {
       setNotification('Wrong credentials', 'error');
       console.error(exception);
     }
-  };
-
-  const handleLogout = () => {
-    dispatch(logout());
-    setNotification('Logged out', 'info');
   };
 
   const createBlog = async (blogData) => {
@@ -106,34 +106,59 @@ const App = () => {
 
   return (
     <div>
+      <Header />
+
       <h1>Blog List</h1>
       <Notification />
 
-      {user === null ? (
-        loginForm()
-      ) : (
-        <div>
-          <p>{user.name} logged-in</p>
-          <button onClick={handleLogout}>logout</button>
-          <h2>Create Blog</h2>
-          <Togglable buttonLabel="new blog" ref={blogFormRef}>
-            <BlogForm createBlog={createBlog} />
-          </Togglable>
-          <h2>blogs</h2>
-          {blogs
-            .slice()
-            .sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0))
-            .map((blog) => (
-              <Blog
-                key={blog.id}
-                blog={blog}
-                user={user}
-                onLike={() => likeBlog(blog)}
-                onDelete={() => deleteBlog(blog.id)}
-              />
-            ))}
-        </div>
-      )}
+      <Routes>
+        <Route path="/users/:id" element={<UserDetail />} />
+
+        <Route
+          path="/users"
+          element={
+            <div>
+              <Users />
+            </div>
+          }
+        />
+
+        <Route path="/blogs/:id" element={<BlogDetail />} />
+
+        <Route
+          path="/login"
+          element={user ? <Navigate replace to="/" /> : loginForm()}
+        />
+
+        <Route
+          path="/"
+          element={
+            user === null ? (
+              <Navigate replace to="/login" />
+            ) : (
+              <div>
+                <h2>Create Blog</h2>
+                <Togglable buttonLabel="new blog" ref={blogFormRef}>
+                  <BlogForm createBlog={createBlog} />
+                </Togglable>
+                <h2>blogs</h2>
+                {blogs
+                  .slice()
+                  .sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0))
+                  .map((blog) => (
+                    <Blog
+                      key={blog.id}
+                      blog={blog}
+                      user={user}
+                      onLike={() => likeBlog(blog)}
+                      onDelete={() => deleteBlog(blog.id)}
+                    />
+                  ))}
+              </div>
+            )
+          }
+        />
+      </Routes>
     </div>
   );
 };

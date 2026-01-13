@@ -2,6 +2,7 @@
 // type can be: 'error' | 'success' | 'info'
 
 import { useSelector } from 'react-redux';
+import '../styles/notification.css';
 
 const Notification = () => {
   const { message, type } = useSelector((state) => state.notification || {});

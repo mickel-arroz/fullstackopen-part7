@@ -8,6 +8,69 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs);
 });
 
+// GET one blog by id (populate user basic info)
+blogsRouter.get('/:id', async (request, response) => {
+  if (!mongoose.Types.ObjectId.isValid(request.params.id)) {
+    return response.status(400).json({ error: 'malformatted id' });
+  }
+  const blog = await Blog.findById(request.params.id).populate('user', {
+    username: 1,
+    name: 1,
+  });
+  if (!blog) {
+    return response.status(404).json({ error: 'Blog not found' });
+  }
+  response.json(blog);
+});
+
+// POST a comment to a blog
+blogsRouter.post('/:id/comments', async (request, response) => {
+  if (!mongoose.Types.ObjectId.isValid(request.params.id)) {
+    return response.status(400).json({ error: 'malformatted id' });
+  }
+
+  const { comment } = request.body;
+  if (!comment || typeof comment !== 'string' || comment.trim() === '') {
+    return response.status(400).json({ error: 'comment is required' });
+  }
+
+  const blog = await Blog.findById(request.params.id);
+  if (!blog) {
+    return response.status(404).json({ error: 'Blog not found' });
+  }
+
+  blog.comments = blog.comments.concat(comment.trim());
+  const saved = await blog.save();
+  const populated = await saved.populate('user', { username: 1, name: 1 });
+  response.status(201).json(populated);
+});
+
+// DELETE a comment by index
+blogsRouter.delete('/:id/comments/:index', async (request, response) => {
+  if (!mongoose.Types.ObjectId.isValid(request.params.id)) {
+    return response.status(400).json({ error: 'malformatted id' });
+  }
+
+  const index = Number(request.params.index);
+  if (Number.isNaN(index) || index < 0) {
+    return response.status(400).json({ error: 'invalid comment index' });
+  }
+
+  const blog = await Blog.findById(request.params.id);
+  if (!blog) {
+    return response.status(404).json({ error: 'Blog not found' });
+  }
+
+  if (!Array.isArray(blog.comments) || index >= blog.comments.length) {
+    return response.status(404).json({ error: 'Comment not found' });
+  }
+
+  blog.comments.splice(index, 1);
+  const saved = await blog.save();
+  const populated = await saved.populate('user', { username: 1, name: 1 });
+  response.json(populated);
+});
+
 // CREATE new blog (auth required)
 blogsRouter.post('/', async (request, response) => {
   const {
